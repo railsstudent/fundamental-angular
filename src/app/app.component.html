@@ -6,8 +6,9 @@
     }
   </ul>
 </div>
-<input type="text" placeholder="Add new item"  [(ngModel)]="newItem" />
-<input type="checkbox" [(ngModel)]="newItemHighPriority" /> High Priority 
 
-{{ newItem() }}, {{ newItemHighPriority() }}
-<!-- <button (click)="addItem()">Save Item</button> -->
+<form (ngSubmit)="saveItem()">
+  <input type="text" placeholder="Add new item" name="newItem" [(ngModel)]="newItem" />
+  <input type="checkbox" [(ngModel)]="newItemHighPriority" name="newItemHighPriority" /> High Priority 
+  <button class="btn btn-primary" (click)="saveItem()">Save Item</button>
+</form>

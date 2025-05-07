@@ -27,4 +27,9 @@ export class AppComponent {
 
   newItem = signal('');
   newItemHighPriority = signal(false);
+
+  saveItem() {
+    const id = this.items().length + 1;
+    this.items.update((items) => [...items, { id, label: this.newItem() }]);
+  }
 }

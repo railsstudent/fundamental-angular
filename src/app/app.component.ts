@@ -17,7 +17,10 @@ import { FormsModule } from '@angular/forms';
     @if (isEditing()) {
       <form class="add-item-form" (ngSubmit)="saveItem()">
         <input type="text" placeholder="Add new item" name="newItem" [(ngModel)]="newItem" />
-        <input type="checkbox" [(ngModel)]="newItemHighPriority" name="newItemHighPriority" /> High Priority 
+        <label>
+          <input type="checkbox" [(ngModel)]="newItemHighPriority" name="newItemHighPriority" />
+          High Priority 
+        </label>
         <button type="submit" class="btn btn-primary">Save Item</button>
       </form>
     } 

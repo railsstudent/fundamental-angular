@@ -4,32 +4,59 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-root',
   imports: [FormsModule],
-  templateUrl: './app.component.html',
+  template: `
+    <div class="header">
+      <h1>{{ header() }}</h1>
+      @if (isEditing()) {
+        <button class="btn" (click)="toggleEditing(false)">Cancel</button>
+      } @else {
+        <button class="btn btn-primary" (click)="toggleEditing(true)">Add Item</button>
+      }
+    </div>
+
+    @if (isEditing()) {
+      <form class="add-item-form" (ngSubmit)="saveItem()">
+        <input type="text" placeholder="Add new item" name="newItem" [(ngModel)]="newItem" />
+        <input type="checkbox" [(ngModel)]="newItemHighPriority" name="newItemHighPriority" /> High Priority 
+        <button type="submit" class="btn btn-primary">Save Item</button>
+      </form>
+    } 
+    <div>
+      @if (items().length > 0) {
+        <ul>
+          @for (item of items(); track item.id) {
+            <li>{{ item.id }} - {{ item.label }}</li>
+          }
+        </ul>
+      } @else {
+        <p>Nothing to see here</p>
+      }
+    </div>
+    
+  `,
   styleUrl: './app.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
   header = signal("Shopping List App");
-  items = signal([
-    {
-      id: 1,
-      label: "10 Apples"
-    },
-    {
-      id: 2,
-      label: "20 Bananas"
-    },
-    {
-      id: 3,
-      label: "5 Oranges"
-    }
-  ]);
+  items = signal<{ id: number, label: string }[]>([]);
 
   newItem = signal('');
   newItemHighPriority = signal(false);
 
+  isEditing = signal(false)
+
+  toggleEditing(value: boolean) {
+    this.isEditing.set(value);
+    this.newItem.set('');
+  };
+
   saveItem() {
+    if (!this.newItem()) {
+      return;
+    }
     const id = this.items().length + 1;
     this.items.update((items) => [...items, { id, label: this.newItem() }]);
+    this.newItem.set('')
   }
 }

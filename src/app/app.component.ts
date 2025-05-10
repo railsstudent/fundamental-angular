@@ -19,9 +19,9 @@ import { FormsModule } from '@angular/forms';
         <input type="text" placeholder="Add new item" name="newItem" [(ngModel)]="newItem" />
         <label>
           <input type="checkbox" [(ngModel)]="newItemHighPriority" name="newItemHighPriority" />
-          High Priority 
+           High Priority 
         </label>
-        <button type="submit" class="btn btn-primary">Save Item</button>
+        <button type="submit" class="btn btn-primary" [disabled]="newItem().length < 5">Save Item</button>
       </form>
     } 
     <div>
@@ -35,7 +35,6 @@ import { FormsModule } from '@angular/forms';
         <p>Nothing to see here</p>
       }
     </div>
-    
   `,
   styleUrl: './app.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,6 +51,7 @@ export class AppComponent {
   toggleEditing(value: boolean) {
     this.isEditing.set(value);
     this.newItem.set('');
+    this.newItemHighPriority.set(false);
   };
 
   saveItem() {
@@ -61,5 +61,6 @@ export class AppComponent {
     const id = this.items().length + 1;
     this.items.update((items) => [...items, { id, label: this.newItem() }]);
     this.newItem.set('')
+    this.newItemHighPriority.set(false);
   }
 }

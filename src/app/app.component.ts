@@ -1,11 +1,14 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { matDoDisturb } from '@ng-icons/material-icons/baseline';
 
 type Item = { id: number; label: string; purchased: boolean; highPriority: boolean };
 
 @Component({
   selector: 'app-root',
-  imports: [FormsModule],
+  imports: [FormsModule, NgIcon],
+  viewProviders: [ provideIcons({ matDoDisturb })],
   template: `
     <div class="header">
       <h1>{{ header() }}</h1>
@@ -39,7 +42,7 @@ type Item = { id: number; label: string; purchased: boolean; highPriority: boole
           }
         </ul>
       } @else {
-        <p>Nothing to see here</p>
+        <p>Nothing to see here. <ng-icon name="matDoDisturb"></ng-icon></p>
       }
     </div>
   `,

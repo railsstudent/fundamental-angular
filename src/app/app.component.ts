@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+type Item = { id: number; label: string; purchased: boolean; highPriority: boolean };
+
 @Component({
   selector: 'app-root',
   imports: [FormsModule],
@@ -19,16 +21,21 @@ import { FormsModule } from '@angular/forms';
         <input type="text" placeholder="Add new item" name="newItem" [(ngModel)]="newItem" />
         <label>
           <input type="checkbox" [(ngModel)]="newItemHighPriority" name="newItemHighPriority" />
-           High Priority 
+          <span [style.fontWeight]="newItemHighPriority() ? 'bold' : 'normal'"> High Priority</span>
         </label>
         <button type="submit" class="btn btn-primary" [disabled]="newItem().length < 5">Save Item</button>
       </form>
-    } 
+    }
     <div>
       @if (items().length > 0) {
         <ul>
           @for (item of items(); track item.id) {
-            <li>{{ item.id }} - {{ item.label }}</li>
+            @let itemClasses =
+              {
+                priority: item.highPriority,
+                strikeout: item.purchased,
+              };
+            <li [class]="itemClasses" (click)="togglePurchase(item)">{{ item.id }} - {{ item.label }}</li>
           }
         </ul>
       } @else {
@@ -40,27 +47,36 @@ import { FormsModule } from '@angular/forms';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
-  header = signal("Shopping List App");
-  items = signal<{ id: number, label: string }[]>([]);
+  header = signal('Shopping List App');
+  items = signal<Item[]>([]);
 
   newItem = signal('');
   newItemHighPriority = signal(false);
 
-  isEditing = signal(false)
+  isEditing = signal(false);
 
   toggleEditing(value: boolean) {
     this.isEditing.set(value);
     this.newItem.set('');
     this.newItemHighPriority.set(false);
-  };
+  }
+
+  togglePurchase(item: Item) {
+    item.purchased = !item.purchased;
+    this.newItem.set('');
+    this.newItemHighPriority.set(false);
+  }
 
   saveItem() {
     if (!this.newItem()) {
       return;
     }
     const id = this.items().length + 1;
-    this.items.update((items) => [...items, { id, label: this.newItem() }]);
-    this.newItem.set('')
+    this.items.update((items) => [
+      ...items,
+      { id, label: this.newItem(), purchased: false, highPriority: this.newItemHighPriority() },
+    ]);
+    this.newItem.set('');
     this.newItemHighPriority.set(false);
   }
 }

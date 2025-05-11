@@ -6,11 +6,7 @@ import { ShoppingCartComponent } from './shopping-cart/shopping-cart.component';
 @Component({
   selector: 'app-root',
   imports: [ShoppingCartComponent],
-  viewProviders: [ provideIcons({ matDoDisturb })],
-  template: `
-    <app-shopping-cart />
-  `,
-  styleUrl: './app.component.scss',
+  template: '<app-shopping-cart />',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {}

@@ -1,14 +1,14 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { matDoDisturb } from '@ng-icons/material-icons/baseline';
+import { matDoDisturb, matRemove } from '@ng-icons/material-icons/baseline';
 
 type Item = { id: number; label: string; purchased: boolean; highPriority: boolean };
 
 @Component({
   selector: 'app-shopping-cart',
   imports: [FormsModule, NgIcon],
-  viewProviders: [ provideIcons({ matDoDisturb })],
+  viewProviders: [ provideIcons({ matDoDisturb, matRemove })],
   template: `
     <div class="header">
       <h1>{{ header() }}</h1>
@@ -38,13 +38,27 @@ type Item = { id: number; label: string; purchased: boolean; highPriority: boole
                 priority: item.highPriority,
                 strikeout: item.purchased,
               };
-            <li [class]="itemClasses" (click)="togglePurchase(item)">{{ item.id }} - {{ item.label }}</li>
+            <div class="list-item">
+              <li [class]="itemClasses" (click)="togglePurchase(item)">{{ item.id }} - {{ item.label }}</li>
+              <button class="btn btn-cancel" aria-label="Delete an item" (click)="deleteItem(item.id)">
+                <ng-icon name="matRemove"></ng-icon>
+              </button>
+            </div>
           }
         </ul>
       } @else {
         <p>Nothing to see here. <ng-icon name="matDoDisturb"></ng-icon></p>
       }
     </div>
+  `,
+  styles: `
+    div.list-item {
+      display: flex;
+    }
+
+    div.list-item > li {
+      margin-right: 0.5rem;
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -80,5 +94,9 @@ export class ShoppingCartComponent {
     ]);
     this.newItem.set('');
     this.newItemHighPriority.set(false);
+  }
+
+  deleteItem(id: number) {
+    this.items.update((items) => items.filter((item) => item.id !== id));
   }
 }

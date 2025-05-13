@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { matDoDisturb, matRemove } from '@ng-icons/material-icons/baseline';
@@ -8,7 +8,7 @@ type Item = { id: number; label: string; purchased: boolean; highPriority: boole
 @Component({
   selector: 'app-shopping-cart',
   imports: [FormsModule, NgIcon],
-  viewProviders: [ provideIcons({ matDoDisturb, matRemove })],
+  viewProviders: [provideIcons({ matDoDisturb, matRemove })],
   template: `
     <div class="header">
       <h1>{{ header() }}</h1>
@@ -30,9 +30,14 @@ type Item = { id: number; label: string; purchased: boolean; highPriority: boole
       </form>
     }
     <div>
-      @if (items().length > 0) {
+      @if (reverse_items().length > 0) {
+        @if (num_items_purchased() > 0) {
+          {{ num_items_purchased_label() }}
+        } @else {
+          <p>You have not purchased any items yet.</p>
+        }
         <ul>
-          @for (item of items(); track item.id) {
+          @for (item of reverse_items(); track item.id) {
             @let itemClasses =
               {
                 priority: item.highPriority,
@@ -40,9 +45,11 @@ type Item = { id: number; label: string; purchased: boolean; highPriority: boole
               };
             <div class="list-item">
               <li [class]="itemClasses" (click)="togglePurchase(item)">{{ item.id }} - {{ item.label }}</li>
-              <button class="btn btn-cancel" aria-label="Delete an item" (click)="deleteItem(item.id)">
-                <ng-icon name="matRemove"></ng-icon>
-              </button>
+              @if (!item.purchased) {
+                <button class="btn btn-cancel" aria-label="Delete an item" (click)="deleteItem(item.id)">
+                  <ng-icon name="matRemove"></ng-icon>
+                </button>
+              }
             </div>
           }
         </ul>
@@ -65,11 +72,19 @@ type Item = { id: number; label: string; purchased: boolean; highPriority: boole
 export class ShoppingCartComponent {
   header = signal('Shopping List App');
   items = signal<Item[]>([]);
+  reverse_items = computed(() => [...this.items()].reverse());
 
   newItem = signal('');
   newItemHighPriority = signal(false);
 
   isEditing = signal(false);
+
+  num_items_purchased = computed(() => this.items().reduce((acc, item) => acc + (item.purchased ? 1 : 0), 0));
+
+  num_items_purchased_label = computed(() => {
+    const unit = this.num_items_purchased() === 1 ? 'item' : 'items';
+    return `${this.num_items_purchased()} ${unit} purchased`;
+  });
 
   toggleEditing(value: boolean) {
     this.isEditing.set(value);
@@ -78,7 +93,9 @@ export class ShoppingCartComponent {
   }
 
   togglePurchase(item: Item) {
-    item.purchased = !item.purchased;
+    this.items.update((items) => {
+      return items.map((element) => (element.id === item.id ? { ...element, purchased: !element.purchased } : element));
+    });
     this.newItem.set('');
     this.newItemHighPriority.set(false);
   }

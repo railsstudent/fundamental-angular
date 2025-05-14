@@ -31,10 +31,13 @@ type Item = { id: number; label: string; purchased: boolean; highPriority: boole
     }
     <div>
       @if (reverse_items().length > 0) {
-        @if (num_items_purchased() > 0) {
+        @let num = num_items_purchased();
+        @if (num > 0 && num < items().length) {
           {{ num_items_purchased_label() }}
+        } @else if (num === 0) {
+          You have not purchased any items yet.
         } @else {
-          <p>You have not purchased any items yet.</p>
+          You have bought everything in the shopping cart.
         }
         <ul>
           @for (item of reverse_items(); track item.id) {

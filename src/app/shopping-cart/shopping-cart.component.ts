@@ -1,21 +1,25 @@
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { matDoDisturb, matRemove } from '@ng-icons/material-icons/baseline';
+import { matAdd, matRemove, matSave } from '@ng-icons/material-icons/baseline';
 
 type Item = { id: number; label: string; purchased: boolean; highPriority: boolean };
 
 @Component({
   selector: 'app-shopping-cart',
   imports: [FormsModule, NgIcon],
-  viewProviders: [provideIcons({ matDoDisturb, matRemove })],
+  viewProviders: [provideIcons({ matRemove, matAdd, matSave })],
   template: `
     <div class="header">
       <h1>{{ header() }}</h1>
       @if (isEditing()) {
-        <button class="btn" (click)="toggleEditing(false)">Cancel</button>
+        <button class="btn" (click)="toggleEditing(false)" aria-label="Cancel">
+          <ng-icon name="matRemove"></ng-icon>
+        </button>
       } @else {
-        <button class="btn btn-primary" (click)="toggleEditing(true)">Add Item</button>
+        <button class="btn btn-primary" (click)="toggleEditing(true)" aria-label="Add Item">
+          <ng-icon name="matAdd"></ng-icon>
+        </button>
       }
     </div>
 
@@ -26,11 +30,13 @@ type Item = { id: number; label: string; purchased: boolean; highPriority: boole
           <input type="checkbox" [(ngModel)]="newItemHighPriority" name="newItemHighPriority" />
           <span [style.fontWeight]="newItemHighPriority() ? 'bold' : 'normal'"> High Priority</span>
         </label>
-        <button type="submit" class="btn btn-primary" [disabled]="newItem().length < 5">Save Item</button>
+        <button type="submit" class="btn btn-primary" [disabled]="newItem().length < 5" aria-label="Save Item">
+          <ng-icon name="matSave"></ng-icon>
+        </button>
       </form>
     }
-    <div>
-      @if (reverse_items().length > 0) {
+    @if (reverse_items().length > 0) {
+      <div class="header">
         @let num = num_items_purchased();
         @if (num > 0 && num < items().length) {
           {{ num_items_purchased_label() }}
@@ -39,27 +45,27 @@ type Item = { id: number; label: string; purchased: boolean; highPriority: boole
         } @else {
           You have bought everything in the shopping cart.
         }
-        <ul>
-          @for (item of reverse_items(); track item.id) {
-            @let itemClasses =
-              {
-                priority: item.highPriority,
-                strikeout: item.purchased,
-              };
-            <div class="list-item">
-              <li [class]="itemClasses" (click)="togglePurchase(item)">{{ item.id }} - {{ item.label }}</li>
-              @if (!item.purchased) {
-                <button class="btn btn-cancel" aria-label="Delete an item" (click)="deleteItem(item.id)">
-                  <ng-icon name="matRemove"></ng-icon>
-                </button>
-              }
-            </div>
-          }
-        </ul>
-      } @else {
-        <p>Nothing to see here. <ng-icon name="matDoDisturb"></ng-icon></p>
-      }
-    </div>
+      </div>
+      <ul>
+        @for (item of reverse_items(); track item.id) {
+          @let itemClasses =
+            {
+              priority: item.highPriority,
+              strikeout: item.purchased,
+            };
+          <div class="list-item">
+            <li [class]="itemClasses" (click)="togglePurchase(item)">{{ item.id }} - {{ item.label }}</li>
+            @if (!item.purchased) {
+              <button class="btn btn-cancel" aria-label="Delete an item" (click)="deleteItem(item.id)">
+                <ng-icon name="matRemove"></ng-icon>
+              </button>
+            }
+          </div>
+        }
+      </ul>
+    } @else {
+      <p>Nothing to see here.</p>
+    }
   `,
   styles: `
     div.list-item {
@@ -73,7 +79,7 @@ type Item = { id: number; label: string; purchased: boolean; highPriority: boole
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShoppingCartComponent {
-  header = signal('Shopping List App');
+  header = signal('Shopping List App - Angular 19');
   items = signal<Item[]>([]);
   reverse_items = computed(() => [...this.items()].reverse());
 
@@ -107,6 +113,7 @@ export class ShoppingCartComponent {
     if (!this.newItem()) {
       return;
     }
+
     const id = this.items().length + 1;
     this.items.update((items) => [
       ...items,

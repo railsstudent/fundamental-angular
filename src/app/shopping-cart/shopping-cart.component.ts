@@ -28,7 +28,7 @@ type Item = { id: number; label: string; purchased: boolean; highPriority: boole
         <input type="text" placeholder="Add new item" name="newItem" [(ngModel)]="newItem" />
         <label>
           <input type="checkbox" [(ngModel)]="newItemHighPriority" name="newItemHighPriority" />
-          <span [style.fontWeight]="newItemHighPriority() ? 'bold' : 'normal'"> High Priority</span>
+          <span [style.fontWeight]="highPriorityStyle()"> High Priority</span>
         </label>
         <button type="submit" class="btn btn-primary" [disabled]="newItem().length < 5" aria-label="Save Item">
           <ng-icon name="matSave"></ng-icon>
@@ -87,6 +87,8 @@ export class ShoppingCartComponent {
   newItemHighPriority = signal(false);
 
   isEditing = signal(false);
+
+  highPriorityStyle = computed(() => this.newItemHighPriority() ? 'bold' : 'normal');
 
   num_items_purchased = computed(() => this.items().reduce((acc, item) => acc + (item.purchased ? 1 : 0), 0));
 

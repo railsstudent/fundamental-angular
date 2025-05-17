@@ -102,9 +102,9 @@ export class ShoppingCartComponent {
   }
 
   togglePurchase(item: Item) {
-    this.items.update((items) => {
-      return items.map((element) => (element.id === item.id ? { ...element, purchased: !element.purchased } : element));
-    });
+    this.items.update((items) =>
+      items.map((element) => (element.id === item.id ? { ...element, purchased: !element.purchased } : element)),
+    );
     this.newItem.set('');
     this.newItemHighPriority.set(false);
   }
